@@ -1,0 +1,105 @@
+#pragma once
+
+#include "Src/Main/Logger.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+template<class T>
+class Array
+{
+	T* m_Items;
+	int m_Count;
+	int m_Capacity;
+
+public:
+	// TODO: Introduce allocators
+	Array()
+	{
+		m_Items = NULL;
+		m_Count = 0;
+		m_Capacity = 0;
+	}
+
+	Array(int capacity)
+	{
+		m_Capacity = capacity;
+		m_Items = Alloc(capacity);
+	}
+
+	~Array()
+	{
+		Free();
+	}
+
+	const T* Data() const { return m_Items; }
+
+	int Count() const { return m_Count; }
+
+	void PushBack(const T& item)
+	{
+		if (m_Count == m_Capacity)
+			Resize(m_Capacity == 0 ? 16 : m_Capacity * 2);
+		m_Items[m_Count++] = item;
+	}
+
+	void Append(const Array<T>& other)
+	{
+		Resize(Count() + other.Count());
+
+		for (int i = 0; i < other.Count(); ++i)
+			m_Items[m_Count++] = other[i];
+	}
+
+	void Resize(int newSize)
+	{
+		if (newSize < m_Count)
+			newSize = m_Count;
+
+		if (newSize <= m_Capacity)
+			return;
+
+		T* newItems = Alloc(newSize);
+		for (int i = 0; i < m_Count; ++i)
+			newItems[i] = m_Items[i];
+		
+		Free();
+		m_Items = newItems;
+	}
+
+	void TrimExcess()
+	{
+		if (m_Capacity == m_Count)
+			return;
+
+		m_Capacity = m_Count;
+
+		T* newItems = Alloc(m_Capacity);
+		for (int i = 0; i < m_Count; ++i)
+			newItems[i] = m_Items[i];
+
+		Free();
+		m_Items = newItems;
+	}
+
+	T& operator[](int i)
+	{
+		return m_Items[i];
+	}
+
+	T operator[](int i) const
+	{
+		return m_Items[i];
+	}
+
+private:
+	T* Alloc(int size)
+	{
+		return new T[size];
+	}
+
+	void Free()
+	{
+		if (m_Items != NULL)
+			delete[] m_Items;
+	}
+};
