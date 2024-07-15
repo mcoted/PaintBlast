@@ -35,11 +35,11 @@ int main()
 	uint32_t count = 0;
 	const char** glfwExts = glfwGetRequiredInstanceExtensions(&count);
 
-	Array<const char*> extraExts;
+	Array<const char*> reqExts;
 	for (uint32_t i = 0; i < count; ++i)
-		extraExts.PushBack(glfwExts[i]);
+		reqExts.PushBack(glfwExts[i]);
 
-	GetGraphicsDevice()->Init(extraExts);
+	GetGraphicsDevice()->Init(reqExts);
 
 	WindowLoop();
 

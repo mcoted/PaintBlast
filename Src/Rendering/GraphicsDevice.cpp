@@ -31,7 +31,7 @@ GraphicsDevice::GraphicsDevice()
     m_Instance = NULL;
 }
 
-void GraphicsDevice::Init(const Array<const char*>& extraExts)
+void GraphicsDevice::Init(const Array<const char*>& requiredExtensions)
 {
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -67,13 +67,10 @@ void GraphicsDevice::Init(const Array<const char*>& extraExts)
     }
 
     if (!CheckValidationLayers())
-    {
-        fprintf(stderr, "Validation layer not found!\n");
-        exit(0);
-    }
+        LogErrorAndAbort("Validation layer not found!\n");
 
-    for (int i = 0; i < extraExts.Count(); ++i)
-        m_InstanceExtensions.PushBack((const char*)extraExts[i]);
+    for (int i = 0; i < requiredExtensions.Count(); ++i)
+        m_InstanceExtensions.PushBack(requiredExtensions[i]);
 
     m_InstanceExtensions.PushBack(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
@@ -81,7 +78,7 @@ void GraphicsDevice::Init(const Array<const char*>& extraExts)
     m_DeviceExtensions.PushBack(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
 
     createInfo.enabledExtensionCount = m_InstanceExtensions.Count();
-    createInfo.ppEnabledExtensionNames = (const char* const *)m_InstanceExtensions.Data();
+    createInfo.ppEnabledExtensionNames = m_InstanceExtensions.Data();
 
 #ifndef NDEBUG
     static const char* validationLayer = "VK_LAYER_KHRONOS_validation";
@@ -99,19 +96,14 @@ void GraphicsDevice::Init(const Array<const char*>& extraExts)
 
 bool GraphicsDevice::CheckValidationLayers()
 {
-    const int kMaxLayerCount = 64;
-    VkLayerProperties availableLayers[kMaxLayerCount];
-
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-    if (layerCount >= kMaxLayerCount)
-    {
-        fprintf(stderr, "Too many validation layers to fit in buffer, please increase 'kMaxLayerCount'\n");
-        exit(0);
-    }
+    Array<VkLayerProperties> availableLayers;
+    for (int i = 0; i < layerCount; ++i)
+        availableLayers.PushBack(VkLayerProperties());
 
-    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.Data());
     for (uint32_t i = 0; i < layerCount; ++i)
     {
         if (strcmp(availableLayers[i].layerName, "VK_LAYER_KHRONOS_validation") == 0)

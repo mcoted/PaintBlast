@@ -32,6 +32,7 @@ public:
 	}
 
 	const T* Data() const { return m_Items; }
+	T* Data() { return m_Items; }
 
 	int Count() const { return m_Count; }
 
@@ -64,6 +65,7 @@ public:
 		
 		Free();
 		m_Items = newItems;
+		m_Capacity = newSize;
 	}
 
 	void TrimExcess()
