@@ -138,6 +138,7 @@
     <ClInclude Include="Src\Core\Array.h" />
     <ClInclude Include="Src\Core\CString.h" />
     <ClInclude Include="Src\Core\String.h" />
+    <ClInclude Include="Src\Core\Utils.h" />
     <ClInclude Include="Src\Main\framework.h" />
     <ClInclude Include="Src\Main\Logger.h" />
     <ClInclude Include="src\Main\PaintBlast.h" />

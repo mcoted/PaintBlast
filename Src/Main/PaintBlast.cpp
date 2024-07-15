@@ -39,7 +39,13 @@ int main()
 	for (uint32_t i = 0; i < count; ++i)
 		reqExts.PushBack(glfwExts[i]);
 
-	GetGraphicsDevice()->Init(reqExts);
+	GraphicsDevice* gfx = GetGraphicsDevice();
+	gfx->Init(reqExts);
+
+	VkSurfaceKHR surface;
+	if (glfwCreateWindowSurface(gfx->GetVulkanInstance(), s_Window, nullptr, &surface) != VK_SUCCESS)
+		LogErrorAndAbort("Failed to create window surface\n");
+	gfx->SetWindowSurface(surface);
 
 	WindowLoop();
 

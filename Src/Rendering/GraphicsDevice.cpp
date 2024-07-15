@@ -2,8 +2,11 @@
 
 #include "GraphicsDevice.h"
 #include "Src/Main/Logger.h"
+#include "Src/Core/Utils.h"
+
 #include <vulkan/vulkan.h>
 #include <string.h>
+
 
 // Extension functions loaders
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
@@ -49,16 +52,8 @@ void GraphicsDevice::Init(const Array<const char*>& requiredExtensions)
     uint32_t extCount = 0;
     if (vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr) == VK_SUCCESS)
     {
-        const int kMaxExtensions = 64;
-        VkExtensionProperties props[kMaxExtensions];
-
-        if (extCount >= kMaxExtensions)
-        {
-            fprintf(stderr, "Too many extensions to fit in buffer, please increase 'kMaxExtensions'\n");
-            exit(0);
-        }
-
-        if (vkEnumerateInstanceExtensionProperties(nullptr, &extCount, props) == VK_SUCCESS)
+        Array<VkExtensionProperties> props(extCount);
+        if (vkEnumerateInstanceExtensionProperties(nullptr, &extCount, props.Data()) == VK_SUCCESS)
         {
             printf("Vulkan Extensions:\n");
             for (uint32_t i = 0; i < extCount; ++i)
@@ -77,6 +72,7 @@ void GraphicsDevice::Init(const Array<const char*>& requiredExtensions)
     m_DeviceExtensions.PushBack(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     m_DeviceExtensions.PushBack(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
 
+
     createInfo.enabledExtensionCount = m_InstanceExtensions.Count();
     createInfo.ppEnabledExtensionNames = m_InstanceExtensions.Data();
 
@@ -94,16 +90,21 @@ void GraphicsDevice::Init(const Array<const char*>& requiredExtensions)
     SetupDebugMessenger();
 }
 
+void GraphicsDevice::SetWindowSurface(VkSurfaceKHR surface)
+{
+    m_Surface = surface;
+    PickPhysicalDevice();
+    CreateLogicalDevice();
+}
+
 bool GraphicsDevice::CheckValidationLayers()
 {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-    Array<VkLayerProperties> availableLayers;
-    for (int i = 0; i < layerCount; ++i)
-        availableLayers.PushBack(VkLayerProperties());
-
+    Array<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.Data());
+
     for (uint32_t i = 0; i < layerCount; ++i)
     {
         if (strcmp(availableLayers[i].layerName, "VK_LAYER_KHRONOS_validation") == 0)
@@ -138,4 +139,177 @@ void GraphicsDevice::SetupDebugMessenger()
     if (CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger) != VK_SUCCESS)
         LogErrorAndAbort("Failed to set up debug messenger");
 #endif
+}
+
+void GraphicsDevice::PickPhysicalDevice()
+{
+    m_PhysicalDevice = VK_NULL_HANDLE;
+
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr);
+    if (deviceCount == 0)
+        LogErrorAndAbort("Failed to find GPUs with Vulkan support\n");
+
+    Array<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(m_Instance, &deviceCount, devices.Data());
+
+    for (uint32_t i = 0; i < deviceCount; ++i)
+    {
+        auto device = devices[i];
+        if (IsDeviceSuitable(device))
+        {
+            m_PhysicalDevice = device;
+            break;
+        }
+    }
+
+    if (m_PhysicalDevice == VK_NULL_HANDLE)
+        LogErrorAndAbort("Failed to find a suitable GPU!\n");
+}
+
+void GraphicsDevice::CreateLogicalDevice()
+{
+    QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice);
+
+    // Poor man's std::set
+    int uniqueIndices[2];
+    uniqueIndices[0] = indices.graphicsFamily;
+    int uniqueCount = 1;
+    if (indices.graphicsFamily != indices.presentFamily)
+    {
+        uniqueIndices[1] = indices.presentFamily;
+        ++uniqueCount;
+    }
+
+    VkDeviceQueueCreateInfo createInfos[2];
+    uint32_t createInfoCount = 0;
+
+    float queuePriority = 1.0f;
+    for (int i = 0; i < uniqueCount; ++i)
+    {
+        VkDeviceQueueCreateInfo queueCreateInfo{};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = uniqueIndices[i];
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+        createInfos[createInfoCount++] = queueCreateInfo;
+    }
+
+
+    VkPhysicalDeviceFeatures deviceFeatures{};
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
+
+    VkDeviceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.queueCreateInfoCount = createInfoCount;
+    createInfo.pQueueCreateInfos = createInfos;
+    createInfo.pEnabledFeatures = &deviceFeatures;
+
+    VkPhysicalDeviceSynchronization2Features sync2Features{};
+    sync2Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
+    sync2Features.synchronization2 = VK_TRUE;
+    createInfo.pNext = &sync2Features;
+
+    createInfo.ppEnabledExtensionNames = m_DeviceExtensions.Data();
+    createInfo.enabledExtensionCount = m_DeviceExtensions.Count();
+
+    if (vkCreateDevice(m_PhysicalDevice, &createInfo, nullptr, &m_Device) != VK_SUCCESS)
+        LogErrorAndAbort("Failed to create logical device\n");
+
+    vkGetDeviceQueue(m_Device, indices.graphicsFamily, 0, &m_GraphicsQueue);
+    vkGetDeviceQueue(m_Device, indices.presentFamily, 0, &m_PresentQueue);
+}
+
+QueueFamilyIndices GraphicsDevice::FindQueueFamilies(VkPhysicalDevice device)
+{
+    QueueFamilyIndices indices;
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+    Array<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.Data());
+    for (uint32_t i = 0; i < queueFamilyCount; ++i)
+    {
+        if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            indices.graphicsFamily = i;
+
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_Surface, &presentSupport);
+        if (presentSupport)
+            indices.presentFamily = i;
+
+        if (indices.IsComplete())
+            break;
+    }
+
+    return indices;
+}
+
+SwapChainSupportDetails GraphicsDevice::QuerySwapChainSupport(VkPhysicalDevice device)
+{
+    SwapChainSupportDetails details;
+
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_Surface, &details.caps);
+
+    uint32_t formatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Surface, &formatCount, nullptr);
+
+    if (formatCount >= COUNTOF(details.formats))
+        LogErrorAndAbort("Too many surface formats to fit in buffer, please increase 'SwapChainSupportDetails.formats'\n");
+
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Surface, &formatCount, details.formats);
+    details.formatCount = formatCount;
+
+    uint32_t modeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Surface, &modeCount, nullptr);
+
+    if (modeCount >= COUNTOF(details.presentModes))
+        LogErrorAndAbort("Too many surface preset modes to fit in buffer, please increase 'SwapChainSupportDetails.presentModes'\n");
+
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Surface, &modeCount, details.presentModes);
+    details.presentModeCount = modeCount;
+
+    return details;
+}
+
+bool GraphicsDevice::IsDeviceSuitable(VkPhysicalDevice device)
+{
+    auto indices = FindQueueFamilies(device);
+
+    bool extensionsSupported = CheckDeviceExtensionSupport(device);
+    bool swapChainAdequate = false;
+    if (extensionsSupported)
+    {
+        SwapChainSupportDetails details = QuerySwapChainSupport(device);
+        swapChainAdequate = details.formatCount > 0 && details.presentModeCount > 0;
+    }
+
+    VkPhysicalDeviceFeatures supportedFeatures;
+    vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
+    return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
+}
+
+bool GraphicsDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device)
+{
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    Array<VkExtensionProperties> props(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, props.Data());
+
+    int matchCount = 0;
+    for (int i = 0; i < (int)extensionCount; ++i)
+    {
+        auto prop = props[i];
+        for (int j = 0; j < m_DeviceExtensions.Count(); ++j)
+        {
+            if (strcmp(m_DeviceExtensions[j], prop.extensionName) == 0)
+                ++matchCount;
+        }
+    }
+
+    return (matchCount == m_DeviceExtensions.Count());
 }
