@@ -100,9 +100,9 @@ public:
 	}
 
 private:
-	T* Alloc(int size)
+	T* Alloc(int itemCount)
 	{
-		return (T*)m_Allocator->Alloc(size);
+		return (T*)m_Allocator->Alloc(itemCount * sizeof(T));
 	}
 
 	void Free()
