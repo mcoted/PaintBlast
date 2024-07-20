@@ -1,29 +1,35 @@
 #pragma once
 
-#include "Src/Main/Logger.h"
+#include "Src/Core/Memory.h"
+#include "Src/Core/Log.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 template<class T>
 class Array
 {
+	Allocator m_AllocType;
+	BaseAllocator* m_Allocator;
 	T* m_Items;
 	int m_Count;
 	int m_Capacity;
 
 public:
-	// TODO: Introduce allocators
-	Array()
+	Array(Allocator allocType)
 	{
+		m_AllocType = allocType;
+		m_Allocator = GetAllocator(allocType);
 		m_Items = NULL;
 		m_Count = 0;
 		m_Capacity = 0;
 	}
 
-	Array(int capacity)
+	Array(int capacity, Allocator allocType)
 	{
+		m_AllocType = allocType;
+		m_Allocator = GetAllocator(allocType);
 		m_Capacity = capacity;
-		m_Items = Alloc(capacity);
+		m_Items = (T*)m_Allocator->Alloc(capacity);
 	}
 
 	~Array()
@@ -96,12 +102,12 @@ public:
 private:
 	T* Alloc(int size)
 	{
-		return new T[size];
+		return (T*)m_Allocator->Alloc(size);
 	}
 
 	void Free()
 	{
 		if (m_Items != NULL)
-			delete[] m_Items;
+			m_Allocator->Free(m_Items);
 	}
 };

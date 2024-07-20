@@ -4,6 +4,8 @@
 #include "PaintBlast.h"
 #include "Src/Core/Array.h"
 #include "Src/Core/String.h"
+#include "Src/Core/Log.h"
+#include "Src/Core/Memory.h"
 #include "Src/Rendering/GraphicsDevice.h"
 
 #define GLFW_INCLUDE_VULKAN
@@ -35,12 +37,15 @@ int main()
 	uint32_t count = 0;
 	const char** glfwExts = glfwGetRequiredInstanceExtensions(&count);
 
-	Array<const char*> reqExts;
-	for (uint32_t i = 0; i < count; ++i)
-		reqExts.PushBack(glfwExts[i]);
-
 	GraphicsDevice* gfx = GetGraphicsDevice();
-	gfx->Init(reqExts);
+	{
+		// Careful not to create long-lived temp-stack allocs in the main function
+		Array<const char*> reqExts(Allocator::TempStack);
+		for (uint32_t i = 0; i < count; ++i)
+			reqExts.PushBack(glfwExts[i]);
+
+		gfx->Init(reqExts);
+	}
 
 	VkSurfaceKHR surface;
 	if (glfwCreateWindowSurface(gfx->GetVulkanInstance(), s_Window, nullptr, &surface) != VK_SUCCESS)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GraphicsDevice.h"
-#include "Src/Main/Logger.h"
+#include "Src/Core/Log.h"
 #include "Src/Core/Utils.h"
 
 #include <vulkan/vulkan.h>
@@ -30,6 +30,8 @@ GraphicsDevice* GetGraphicsDevice()
 }
 
 GraphicsDevice::GraphicsDevice()
+    : m_InstanceExtensions(Allocator::Persistent)
+    , m_DeviceExtensions(Allocator::Persistent)
 {
     m_Instance = NULL;
 }
@@ -52,7 +54,7 @@ void GraphicsDevice::Init(const Array<const char*>& requiredExtensions)
     uint32_t extCount = 0;
     if (vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr) == VK_SUCCESS)
     {
-        Array<VkExtensionProperties> props(extCount);
+        Array<VkExtensionProperties> props(extCount, Allocator::TempStack);
         if (vkEnumerateInstanceExtensionProperties(nullptr, &extCount, props.Data()) == VK_SUCCESS)
         {
             printf("Vulkan Extensions:\n");
@@ -85,7 +87,7 @@ void GraphicsDevice::Init(const Array<const char*>& requiredExtensions)
 #endif
 
     if (vkCreateInstance(&createInfo, NULL, &m_Instance) != VK_SUCCESS)
-        LogErrorAndAbort("vkCreateInstance failed");
+        LogErrorAndAbort("vkCreateInstance failed\n");
 
     SetupDebugMessenger();
 }
@@ -102,7 +104,7 @@ bool GraphicsDevice::CheckValidationLayers()
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-    Array<VkLayerProperties> availableLayers(layerCount);
+    Array<VkLayerProperties> availableLayers(layerCount, Allocator::TempStack);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.Data());
 
     for (uint32_t i = 0; i < layerCount; ++i)
@@ -137,7 +139,7 @@ void GraphicsDevice::SetupDebugMessenger()
     createInfo.pUserData = nullptr; // Optional
 
     if (CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger) != VK_SUCCESS)
-        LogErrorAndAbort("Failed to set up debug messenger");
+        LogErrorAndAbort("Failed to set up debug messenger\n");
 #endif
 }
 
@@ -150,7 +152,7 @@ void GraphicsDevice::PickPhysicalDevice()
     if (deviceCount == 0)
         LogErrorAndAbort("Failed to find GPUs with Vulkan support\n");
 
-    Array<VkPhysicalDevice> devices(deviceCount);
+    Array<VkPhysicalDevice> devices(deviceCount, Allocator::TempStack);
     vkEnumeratePhysicalDevices(m_Instance, &deviceCount, devices.Data());
 
     for (uint32_t i = 0; i < deviceCount; ++i)
@@ -227,7 +229,7 @@ QueueFamilyIndices GraphicsDevice::FindQueueFamilies(VkPhysicalDevice device)
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
-    Array<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    Array<VkQueueFamilyProperties> queueFamilies(queueFamilyCount, Allocator::TempStack);
 
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.Data());
     for (uint32_t i = 0; i < queueFamilyCount; ++i)
@@ -297,7 +299,7 @@ bool GraphicsDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device)
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-    Array<VkExtensionProperties> props(extensionCount);
+    Array<VkExtensionProperties> props(extensionCount, Allocator::TempStack);
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, props.Data());
 
     int matchCount = 0;
