@@ -6,14 +6,6 @@
 class GraphicsDevice;
 GraphicsDevice* GetGraphicsDevice();
 
-struct SwapChainSupportDetails {
-	VkSurfaceCapabilitiesKHR caps;
-	VkSurfaceFormatKHR formats[64];
-	uint32_t formatCount;
-	VkPresentModeKHR presentModes[64];
-	uint32_t presentModeCount;
-};
-
 struct QueueFamilyIndices
 {
 	QueueFamilyIndices()
@@ -26,6 +18,8 @@ struct QueueFamilyIndices
 	bool IsComplete() { return graphicsFamily >= 0 && presentFamily >= 0; }
 };
 
+typedef void (*QuerySurfaceSizeFunc)(int& width, int& height);
+
 class GraphicsDevice
 {
 public:
@@ -33,8 +27,17 @@ public:
 
 	void Init(const Array<const char*>& extraExts);
 
+	VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
+	VkDevice GetLogicalDevice() const { return m_Device; }
+	VkSurfaceKHR GetWindowSurface() const { return m_Surface; }
+
 	VkInstance GetVulkanInstance() const { return m_Instance; }
 	void SetWindowSurface(VkSurfaceKHR surface);
+
+	void SetQuerySurfaceSizeCallback(QuerySurfaceSizeFunc func) { m_QuerySurfaceSizeCallback = func; }
+	void QuerySurfaceSize(int& width, int& height) const { if (m_QuerySurfaceSizeCallback != NULL) m_QuerySurfaceSizeCallback(width, height); }
+
+	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
 private:
 	VkInstance m_Instance;
@@ -46,6 +49,8 @@ private:
 	VkDevice m_Device;
 	VkQueue m_GraphicsQueue;
 	VkQueue m_PresentQueue;
+	
+	QuerySurfaceSizeFunc m_QuerySurfaceSizeCallback;
 
 	Array<const char*> m_InstanceExtensions;
 	Array<const char*> m_DeviceExtensions;
@@ -54,10 +59,8 @@ private:
 	void SetupDebugMessenger();
 	void PickPhysicalDevice();
 	void CreateLogicalDevice();
+	void CreateSwapChain();
 
-	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
-
-	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 	bool IsDeviceSuitable(VkPhysicalDevice device);
 	bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 };

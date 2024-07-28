@@ -10,37 +10,38 @@ BaseAllocator* GetAllocator(Allocator type)
 	case Allocator::TempStack:  return TempStackAllocator::Get();
 	case Allocator::Persistent: return SlowMallocAllocator::Get();
 	}
+	LogErrorAndAbort("Can't find allocator %d\n", type);
 	return NULL;
 }
 
-TempStackAllocator* TempStackAllocator::s_Allocator = NULL;
+thread_local TempStackAllocator* TempStackAllocator::s_Allocator = NULL;
 
 TempStackAllocator* TempStackAllocator::Get()
 {
 	if (s_Allocator == NULL)
-		s_Allocator = new TempStackAllocator(KB(32));
+		s_Allocator = new TempStackAllocator(KB(64));
 	
 	return s_Allocator;
 }
 
-TempStackAllocator::TempStackAllocator(int maxSize)
+TempStackAllocator::TempStackAllocator(Int32 maxSize)
 {
 	m_Memory = (UByte*)malloc(maxSize);
 	m_MaxSize = maxSize;
-	m_Current = 0;
+	m_Offset = 0;
 	m_StackAllocCount = 0;
 }
 
-void* TempStackAllocator::Alloc(int size)
+void* TempStackAllocator::Alloc(Int32 size)
 {
-	if ((m_Current + size) >= m_MaxSize)
+	if ((m_Offset + size) >= m_MaxSize)
 	{
 		LogErrorAndAbort("Not enough temp memory to allocate %d bytes\n", size);
 		return NULL;
 	}
 
-	void* ptr = m_Memory + m_Current;
-	m_Current += size;
+	void* ptr = m_Memory + m_Offset;
+	m_Offset += size;
 
 	++m_StackAllocCount;
 
@@ -57,7 +58,7 @@ void TempStackAllocator::Free(void* ptr)
 
 	--m_StackAllocCount;
 	if (m_StackAllocCount == 0)
-		m_Current = 0; // Free everything!
+		m_Offset = 0; // Free everything!
 }
 
 SlowMallocAllocator* SlowMallocAllocator::s_Allocator = NULL;
@@ -70,12 +71,12 @@ SlowMallocAllocator* SlowMallocAllocator::Get()
 	return s_Allocator;
 }
 
-void* SlowMallocAllocator::Alloc(int size)
+void* SlowMallocAllocator::Alloc(Int32 size)
 {
-	return malloc(size);
+	return ::malloc(size);
 }
 
 void SlowMallocAllocator::Free(void* ptr)
 {
-	free(ptr);
+	::free(ptr);
 }

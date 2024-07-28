@@ -13,7 +13,7 @@ enum Allocator
 class BaseAllocator
 {
 public:
-	virtual void* Alloc(int size) = 0;
+	virtual void* Alloc(Int32 size) = 0;
 	virtual void Free(void* ptr) = 0;
 };
 
@@ -21,18 +21,18 @@ BaseAllocator* GetAllocator(Allocator type);
 
 class TempStackAllocator : public BaseAllocator
 {
-	static TempStackAllocator* s_Allocator;
+	static thread_local TempStackAllocator* s_Allocator;
 	UByte* m_Memory;
-	int m_MaxSize;
-	int m_Current;
-	int m_StackAllocCount;
+	Int32 m_MaxSize;
+	Int32 m_Offset;
+	Int32 m_StackAllocCount;
 
 public:
 	static TempStackAllocator* Get();
 
-	TempStackAllocator(int maxSize);
+	TempStackAllocator(Int32 maxSize);
 
-	void* Alloc(int size);
+	void* Alloc(Int32 size);
 	void Free(void* ptr);
 };
 
@@ -42,6 +42,6 @@ class SlowMallocAllocator : public BaseAllocator
 public:
 	static SlowMallocAllocator* Get();
 
-	void* Alloc(int size);
+	void* Alloc(Int32 size);
 	void Free(void* ptr);
 };

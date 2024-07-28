@@ -21,6 +21,11 @@ static void WindowLoop()
 	}
 }
 
+static void QuerySurfaceSize(int& width, int& height)
+{
+	glfwGetFramebufferSize(s_Window, &width, &height);
+}
+
 // Debug builds are a console application.
 // Release builds are a window application to avoid showing the console.
 // See Project Properties > Linker > System
@@ -38,6 +43,8 @@ int main()
 	const char** glfwExts = glfwGetRequiredInstanceExtensions(&count);
 
 	GraphicsDevice* gfx = GetGraphicsDevice();
+	gfx->SetQuerySurfaceSizeCallback(QuerySurfaceSize);
+
 	{
 		// Careful not to create long-lived temp-stack allocs in the main function
 		Array<const char*> reqExts(Allocator::TempStack);

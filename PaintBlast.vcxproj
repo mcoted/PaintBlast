@@ -149,6 +149,7 @@
     <ClCompile Include="Src\Core\Memory.cpp" />
     <ClCompile Include="src\Main\PaintBlast.cpp" />
     <ClCompile Include="Src\Rendering\GraphicsDevice.cpp" />
+    <ClCompile Include="Src\Rendering\SwapChain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="external\GLFW\lib-vc2022\glfw3.dll" />

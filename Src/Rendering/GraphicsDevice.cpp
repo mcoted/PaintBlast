@@ -3,6 +3,7 @@
 #include "GraphicsDevice.h"
 #include "Src/Core/Log.h"
 #include "Src/Core/Utils.h"
+#include "Src/Rendering/SwapChain.h"
 
 #include <vulkan/vulkan.h>
 #include <string.h>
@@ -32,6 +33,7 @@ GraphicsDevice* GetGraphicsDevice()
 GraphicsDevice::GraphicsDevice()
     : m_InstanceExtensions(Allocator::Persistent)
     , m_DeviceExtensions(Allocator::Persistent)
+    , m_QuerySurfaceSizeCallback(NULL)
 {
     m_Instance = NULL;
 }
@@ -95,8 +97,13 @@ void GraphicsDevice::Init(const Array<const char*>& requiredExtensions)
 void GraphicsDevice::SetWindowSurface(VkSurfaceKHR surface)
 {
     m_Surface = surface;
+
+    // Once we have a surface, we can pick a physical device
+    // that matches the required surface properties
     PickPhysicalDevice();
+    
     CreateLogicalDevice();
+    CreateSwapChain();
 }
 
 bool GraphicsDevice::CheckValidationLayers()
@@ -222,6 +229,11 @@ void GraphicsDevice::CreateLogicalDevice()
     vkGetDeviceQueue(m_Device, indices.presentFamily, 0, &m_PresentQueue);
 }
 
+void GraphicsDevice::CreateSwapChain()
+{
+
+}
+
 QueueFamilyIndices GraphicsDevice::FindQueueFamilies(VkPhysicalDevice device)
 {
     QueueFamilyIndices indices;
@@ -249,33 +261,6 @@ QueueFamilyIndices GraphicsDevice::FindQueueFamilies(VkPhysicalDevice device)
     return indices;
 }
 
-SwapChainSupportDetails GraphicsDevice::QuerySwapChainSupport(VkPhysicalDevice device)
-{
-    SwapChainSupportDetails details;
-
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_Surface, &details.caps);
-
-    uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Surface, &formatCount, nullptr);
-
-    if (formatCount >= COUNTOF(details.formats))
-        LogErrorAndAbort("Too many surface formats to fit in buffer, please increase 'SwapChainSupportDetails.formats'\n");
-
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_Surface, &formatCount, details.formats);
-    details.formatCount = formatCount;
-
-    uint32_t modeCount;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Surface, &modeCount, nullptr);
-
-    if (modeCount >= COUNTOF(details.presentModes))
-        LogErrorAndAbort("Too many surface preset modes to fit in buffer, please increase 'SwapChainSupportDetails.presentModes'\n");
-
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_Surface, &modeCount, details.presentModes);
-    details.presentModeCount = modeCount;
-
-    return details;
-}
-
 bool GraphicsDevice::IsDeviceSuitable(VkPhysicalDevice device)
 {
     auto indices = FindQueueFamilies(device);
@@ -284,7 +269,7 @@ bool GraphicsDevice::IsDeviceSuitable(VkPhysicalDevice device)
     bool swapChainAdequate = false;
     if (extensionsSupported)
     {
-        SwapChainSupportDetails details = QuerySwapChainSupport(device);
+        SwapChainSupportDetails details = SwapChain::QuerySwapChainSupport(device, m_Surface);
         swapChainAdequate = details.formatCount > 0 && details.presentModeCount > 0;
     }
 
