@@ -231,7 +231,7 @@ void GraphicsDevice::CreateLogicalDevice()
 
 void GraphicsDevice::CreateSwapChain()
 {
-
+    m_SwapChain.reset(new SwapChain());
 }
 
 QueueFamilyIndices GraphicsDevice::FindQueueFamilies(VkPhysicalDevice device)

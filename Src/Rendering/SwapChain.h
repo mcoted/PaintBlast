@@ -21,6 +21,8 @@ public:
 
 private:
 	VkSwapchainKHR m_SwapChain;
+	
+	VkImage m_SwapChainImages[8];
 	UInt32 m_SwapChainImageCount;
 	VkFormat m_SwapChainImageFormat;
 	VkExtent2D m_SwapChainExtent;

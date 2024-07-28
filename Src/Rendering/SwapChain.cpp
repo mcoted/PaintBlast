@@ -124,15 +124,12 @@ void SwapChain::Create()
     if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
         LogErrorAndAbort("Failed to create swap chain\n");
 
-    //vkGetSwapchainImagesKHR(device, m_SwapChain, &m_SwapChainImageCount, nullptr);
-    //if (m_SwapChainImageCount > COUNTOF(m_SwapChainImages))
-    //{
-    //    fprintf(stderr, "Not enough `m_SwapChainImages`\n");
-    //    exit(0);
-    //}
+    vkGetSwapchainImagesKHR(device, m_SwapChain, &m_SwapChainImageCount, nullptr);
+    if (m_SwapChainImageCount > COUNTOF(m_SwapChainImages))
+        LogErrorAndAbort("Not enough `m_SwapChainImages`\n");
 
-    //vkGetSwapchainImagesKHR(gfx->GetLogicalDevice(), m_SwapChain, &m_SwapChainImageCount, m_SwapChainImages);
+    vkGetSwapchainImagesKHR(gfx->GetLogicalDevice(), m_SwapChain, &m_SwapChainImageCount, m_SwapChainImages);
 
-    //m_SwapChainImageFormat = surfaceFormat.format;
-    //m_SwapChainExtent = extent;
+    m_SwapChainImageFormat = surfaceFormat.format;
+    m_SwapChainExtent = extent;
 }

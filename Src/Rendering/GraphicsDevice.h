@@ -2,9 +2,12 @@
 
 #include "Src/Core/Array.h"
 #include <vulkan/vulkan.h>
+#include <memory>
 
 class GraphicsDevice;
 GraphicsDevice* GetGraphicsDevice();
+
+class SwapChain;
 
 struct QueueFamilyIndices
 {
@@ -54,6 +57,8 @@ private:
 
 	Array<const char*> m_InstanceExtensions;
 	Array<const char*> m_DeviceExtensions;
+
+	std::unique_ptr<SwapChain> m_SwapChain;
 
 	bool CheckValidationLayers();
 	void SetupDebugMessenger();
