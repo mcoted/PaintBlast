@@ -31,11 +31,20 @@ GraphicsDevice* GetGraphicsDevice()
 }
 
 GraphicsDevice::GraphicsDevice()
-    : m_InstanceExtensions(Allocator::Persistent)
+    : m_Instance(NULL)
+#ifndef NDEBUG
+    , m_DebugMessenger(NULL)
+#endif
+    , m_Surface(NULL)
+    , m_PhysicalDevice(NULL)
+    , m_Device(NULL)
+    , m_GraphicsQueue(NULL)
+    , m_PresentQueue(NULL)
+    , m_InstanceExtensions(Allocator::Persistent)
     , m_DeviceExtensions(Allocator::Persistent)
-    , m_QuerySurfaceSizeCallback(NULL)
+    , m_TargetSwapChainWidth(0)
+    , m_TargetSwapChainHeight(0)
 {
-    m_Instance = NULL;
 }
 
 void GraphicsDevice::Init(const Array<const char*>& requiredExtensions)
@@ -94,6 +103,20 @@ void GraphicsDevice::Init(const Array<const char*>& requiredExtensions)
     SetupDebugMessenger();
 }
 
+void GraphicsDevice::SetTargetSwapChainSize(int width, int height)
+{
+    if (width == m_TargetSwapChainWidth && height == m_TargetSwapChainHeight)
+        return; // Nothing to do
+
+    m_TargetSwapChainWidth = width;
+    m_TargetSwapChainHeight = height;
+
+    if (m_SwapChain == NULL)
+        return; // No swapchain yet
+
+    RecreateSwapChain(m_TargetSwapChainWidth, m_TargetSwapChainHeight);
+}
+
 void GraphicsDevice::SetWindowSurface(VkSurfaceKHR surface)
 {
     m_Surface = surface;
@@ -103,7 +126,7 @@ void GraphicsDevice::SetWindowSurface(VkSurfaceKHR surface)
     PickPhysicalDevice();
     
     CreateLogicalDevice();
-    CreateSwapChain();
+    RecreateSwapChain(m_TargetSwapChainWidth, m_TargetSwapChainHeight);
 }
 
 bool GraphicsDevice::CheckValidationLayers()
@@ -229,9 +252,10 @@ void GraphicsDevice::CreateLogicalDevice()
     vkGetDeviceQueue(m_Device, indices.presentFamily, 0, &m_PresentQueue);
 }
 
-void GraphicsDevice::CreateSwapChain()
+void GraphicsDevice::RecreateSwapChain(int width, int height)
 {
-    m_SwapChain.reset(new SwapChain());
+    // TODO: Properly destroy previous swapchain?
+    m_SwapChain.reset(new SwapChain(width, height));
 }
 
 QueueFamilyIndices GraphicsDevice::FindQueueFamilies(VkPhysicalDevice device)

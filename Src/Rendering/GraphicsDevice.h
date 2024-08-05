@@ -30,15 +30,15 @@ public:
 
 	void Init(const Array<const char*>& extraExts);
 
+	void SetTargetSwapChainSize(int width, int height);
+	void GetTargetSwapChainSize(int* width, int* height) { *width = m_TargetSwapChainWidth, * height = m_TargetSwapChainHeight; }
+
 	VkPhysicalDevice GetPhysicalDevice() const { return m_PhysicalDevice; }
 	VkDevice GetLogicalDevice() const { return m_Device; }
 	VkSurfaceKHR GetWindowSurface() const { return m_Surface; }
 
 	VkInstance GetVulkanInstance() const { return m_Instance; }
 	void SetWindowSurface(VkSurfaceKHR surface);
-
-	void SetQuerySurfaceSizeCallback(QuerySurfaceSizeFunc func) { m_QuerySurfaceSizeCallback = func; }
-	void QuerySurfaceSize(int& width, int& height) const { if (m_QuerySurfaceSizeCallback != NULL) m_QuerySurfaceSizeCallback(width, height); }
 
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
@@ -53,18 +53,19 @@ private:
 	VkQueue m_GraphicsQueue;
 	VkQueue m_PresentQueue;
 	
-	QuerySurfaceSizeFunc m_QuerySurfaceSizeCallback;
-
 	Array<const char*> m_InstanceExtensions;
 	Array<const char*> m_DeviceExtensions;
 
 	std::unique_ptr<SwapChain> m_SwapChain;
 
+	Int32 m_TargetSwapChainWidth;
+	Int32 m_TargetSwapChainHeight;
+
 	bool CheckValidationLayers();
 	void SetupDebugMessenger();
 	void PickPhysicalDevice();
 	void CreateLogicalDevice();
-	void CreateSwapChain();
+	void RecreateSwapChain(int width, int height);
 
 	bool IsDeviceSuitable(VkPhysicalDevice device);
 	bool CheckDeviceExtensionSupport(VkPhysicalDevice device);

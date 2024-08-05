@@ -4,8 +4,13 @@
 #include "GraphicsDevice.h"
 #include "Src/Core/Log.h"
 
-SwapChain::SwapChain()
-    : m_SwapChain(NULL)
+SwapChain::SwapChain(Int32 width, Int32 height)
+    :  m_Width(width)
+    , m_Height(height)
+    , m_SwapChain(NULL)
+    , m_SwapChainImageCount(0)
+    , m_SwapChainImageFormat(VK_FORMAT_UNDEFINED)
+    , m_SwapChainExtent()
 {
     Create();
 }
@@ -63,9 +68,8 @@ static VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& caps)
     }
     else
     {
-        int width;
-        int height;
-        GetGraphicsDevice()->QuerySurfaceSize(width, height);
+        int width, height;
+        GetGraphicsDevice()->GetTargetSwapChainSize(&width, &height);
 
         VkExtent2D actualExtent{ (uint32_t)width, (uint32_t)height };
         actualExtent.width = CLAMP(actualExtent.width, caps.minImageExtent.width, caps.maxImageExtent.width);

@@ -21,11 +21,6 @@ static void WindowLoop()
 	}
 }
 
-static void QuerySurfaceSize(int& width, int& height)
-{
-	glfwGetFramebufferSize(s_Window, &width, &height);
-}
-
 // Debug builds are a console application.
 // Release builds are a window application to avoid showing the console.
 // See Project Properties > Linker > System
@@ -39,11 +34,13 @@ int main()
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	s_Window = glfwCreateWindow(1024, 768, "PaintBlast", NULL, NULL);
 
+	int width, height;
+	glfwGetFramebufferSize(s_Window, &width, &height);
+
 	uint32_t count = 0;
 	const char** glfwExts = glfwGetRequiredInstanceExtensions(&count);
 
 	GraphicsDevice* gfx = GetGraphicsDevice();
-	gfx->SetQuerySurfaceSizeCallback(QuerySurfaceSize);
 
 	{
 		// Careful not to create long-lived temp-stack allocs in the main function
@@ -52,6 +49,7 @@ int main()
 			reqExts.PushBack(glfwExts[i]);
 
 		gfx->Init(reqExts);
+		gfx->SetTargetSwapChainSize(width, height);
 	}
 
 	VkSurfaceKHR surface;

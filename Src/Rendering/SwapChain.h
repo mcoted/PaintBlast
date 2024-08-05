@@ -17,9 +17,12 @@ class SwapChain
 public:
 	static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
-	SwapChain();
+	SwapChain(int width, int height);
 
 private:
+	Int32 m_Width;
+	Int32 m_Height;
+
 	VkSwapchainKHR m_SwapChain;
 	
 	VkImage m_SwapChainImages[8];
