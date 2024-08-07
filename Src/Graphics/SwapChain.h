@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Src/Core/Utils.h"
-#include "Src/Rendering/Image.h"
-#include "Src/Rendering/ImageView.h"
+#include "Src/Graphics/Image.h"
+#include "Src/Graphics/ImageView.h"
 #include <vulkan/vulkan.h>
 
 struct SwapChainSupportDetails

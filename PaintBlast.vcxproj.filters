@@ -18,11 +18,11 @@
     <Filter Include="Libs\GLFW">
       <UniqueIdentifier>{cefa9e1c-a205-4918-8539-06eb50680112}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Rendering">
-      <UniqueIdentifier>{9c5ee6ba-425a-4f0b-b6a4-2839dc992349}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{b7b5df0a-3440-4787-868c-64ee889c67b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{9c5ee6ba-425a-4f0b-b6a4-2839dc992349}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -31,12 +31,6 @@
     </ClInclude>
     <ClInclude Include="Src\Main\framework.h">
       <Filter>Source Files\Main</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Rendering\GraphicsDevice.h">
-      <Filter>Source Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Rendering\SwapChain.h">
-      <Filter>Source Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Src\Core\Array.h">
       <Filter>Source Files\Core</Filter>
@@ -53,31 +47,43 @@
     <ClInclude Include="Src\Core\Log.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Rendering\ImageView.h">
-      <Filter>Source Files\Rendering</Filter>
+    <ClInclude Include="Src\Graphics\Framebuffer.h">
+      <Filter>Source Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Rendering\Image.h">
-      <Filter>Source Files\Rendering</Filter>
+    <ClInclude Include="Src\Graphics\GraphicsDevice.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Graphics\Image.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Graphics\ImageView.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Graphics\SwapChain.h">
+      <Filter>Source Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main\PaintBlast.cpp">
       <Filter>Source Files\Main</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Rendering\GraphicsDevice.cpp">
-      <Filter>Source Files\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Core\Memory.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Rendering\SwapChain.cpp">
-      <Filter>Source Files\Rendering</Filter>
+    <ClCompile Include="Src\Graphics\Framebuffer.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Rendering\ImageView.cpp">
-      <Filter>Source Files\Rendering</Filter>
+    <ClCompile Include="Src\Graphics\GraphicsDevice.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Rendering\Image.cpp">
-      <Filter>Source Files\Rendering</Filter>
+    <ClCompile Include="Src\Graphics\Image.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Graphics\ImageView.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Graphics\SwapChain.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

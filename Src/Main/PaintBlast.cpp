@@ -6,7 +6,7 @@
 #include "Src/Core/String.h"
 #include "Src/Core/Log.h"
 #include "Src/Core/Memory.h"
-#include "Src/Rendering/GraphicsDevice.h"
+#include "Src/Graphics/GraphicsDevice.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>

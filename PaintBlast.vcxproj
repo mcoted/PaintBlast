@@ -140,20 +140,22 @@
     <ClInclude Include="Src\Core\Memory.h" />
     <ClInclude Include="Src\Core\String.h" />
     <ClInclude Include="Src\Core\Utils.h" />
+    <ClInclude Include="Src\Graphics\Framebuffer.h" />
+    <ClInclude Include="Src\Graphics\GraphicsDevice.h" />
+    <ClInclude Include="Src\Graphics\Image.h" />
+    <ClInclude Include="Src\Graphics\ImageView.h" />
+    <ClInclude Include="Src\Graphics\SwapChain.h" />
     <ClInclude Include="Src\Main\framework.h" />
     <ClInclude Include="src\Main\PaintBlast.h" />
-    <ClInclude Include="Src\Rendering\GraphicsDevice.h" />
-    <ClInclude Include="Src\Rendering\Image.h" />
-    <ClInclude Include="Src\Rendering\ImageView.h" />
-    <ClInclude Include="Src\Rendering\SwapChain.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Core\Memory.cpp" />
+    <ClCompile Include="Src\Graphics\Framebuffer.cpp" />
+    <ClCompile Include="Src\Graphics\GraphicsDevice.cpp" />
+    <ClCompile Include="Src\Graphics\Image.cpp" />
+    <ClCompile Include="Src\Graphics\ImageView.cpp" />
+    <ClCompile Include="Src\Graphics\SwapChain.cpp" />
     <ClCompile Include="src\Main\PaintBlast.cpp" />
-    <ClCompile Include="Src\Rendering\GraphicsDevice.cpp" />
-    <ClCompile Include="Src\Rendering\Image.cpp" />
-    <ClCompile Include="Src\Rendering\ImageView.cpp" />
-    <ClCompile Include="Src\Rendering\SwapChain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="external\GLFW\lib-vc2022\glfw3.dll" />

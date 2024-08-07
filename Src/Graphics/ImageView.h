@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Src/Core/Utils.h"
-#include "Src/Rendering/Image.h"
+#include "Src/Graphics/Image.h"
 #include <vulkan/vulkan.h>
 
 class ImageView

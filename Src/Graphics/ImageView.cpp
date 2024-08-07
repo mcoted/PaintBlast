@@ -1,6 +1,6 @@
 #include "ImageView.h"
 #include "Src/Core/Log.h"
-#include "Src/Rendering/GraphicsDevice.h"
+#include "Src/Graphics/GraphicsDevice.h"
 
 ImageView::ImageView()
     : m_Image()

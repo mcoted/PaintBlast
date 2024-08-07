@@ -1,7 +1,7 @@
 #include "GraphicsDevice.h"
 #include "Src/Core/Log.h"
 #include "Src/Core/Utils.h"
-#include "Src/Rendering/SwapChain.h"
+#include "Src/Graphics/SwapChain.h"
 
 #include <vulkan/vulkan.h>
 #include <string.h>
