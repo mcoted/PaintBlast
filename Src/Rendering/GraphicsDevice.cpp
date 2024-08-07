@@ -1,5 +1,3 @@
-#pragma once
-
 #include "GraphicsDevice.h"
 #include "Src/Core/Log.h"
 #include "Src/Core/Utils.h"

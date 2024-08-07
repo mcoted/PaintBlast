@@ -53,6 +53,12 @@
     <ClInclude Include="Src\Core\Log.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Rendering\ImageView.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Rendering\Image.h">
+      <Filter>Source Files\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Main\PaintBlast.cpp">
@@ -65,6 +71,12 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="Src\Rendering\SwapChain.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Rendering\ImageView.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Rendering\Image.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
   </ItemGroup>

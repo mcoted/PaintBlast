@@ -1,5 +1,3 @@
-#pragma once
-
 #include "SwapChain.h"
 #include "GraphicsDevice.h"
 #include "Src/Core/Log.h"
@@ -133,6 +131,12 @@ void SwapChain::Create()
         LogErrorAndAbort("Not enough `m_SwapChainImages`\n");
 
     vkGetSwapchainImagesKHR(gfx->GetLogicalDevice(), m_SwapChain, &m_SwapChainImageCount, m_SwapChainImages);
+
+    for (int i = 0; i < (int)m_SwapChainImageCount; ++i)
+    {
+        m_Images[i].InitWithVkImage(m_SwapChainImages[i]);
+        m_ImageViews[i].InitWithImage(m_Images[i], surfaceFormat.format);
+    }
 
     m_SwapChainImageFormat = surfaceFormat.format;
     m_SwapChainExtent = extent;
