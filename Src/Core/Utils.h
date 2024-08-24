@@ -1,6 +1,10 @@
 #pragma once
 
 #include <memory>
+#include <assert.h>
+
+
+#define Assert assert
 
 template<typename T> 
 inline T MIN(const T& X, const T& Y) { return X < Y ? X : Y; }

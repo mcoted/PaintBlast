@@ -42,10 +42,15 @@ public:
 
 	int Count() const { return m_Count; }
 
+	void Clear()
+	{
+		m_Count = 0;
+	}
+
 	void PushBack(const T& item)
 	{
 		if (m_Count == m_Capacity)
-			Resize(m_Capacity == 0 ? 16 : m_Capacity * 2);
+			Resize(m_Capacity == 0 ? 16 : (m_Capacity << 1));
 		m_Items[m_Count++] = item;
 	}
 
@@ -99,6 +104,14 @@ public:
 		return m_Items[i];
 	}
 
+	Array<T>& operator=(const Array<T>& other)
+	{
+		Clear();
+		for (int i = 0; i < other.Count(); ++i)
+			PushBack(other[i]);
+		return *this;
+	}
+
 private:
 	T* Alloc(int itemCount)
 	{
@@ -109,5 +122,6 @@ private:
 	{
 		if (m_Items != NULL)
 			m_Allocator->Free(m_Items);
+		m_Items = NULL;
 	}
 };

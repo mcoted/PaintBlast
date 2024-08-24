@@ -21,6 +21,8 @@ public:
 
 	SwapChain(Int32 width, Int32 height);
 
+	VkFormat GetFormat() const { return m_SwapChainImageFormat; }
+
 private:
 	Int32 m_Width;
 	Int32 m_Height;

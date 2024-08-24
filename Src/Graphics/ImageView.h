@@ -12,7 +12,7 @@ public:
 	void InitWithImage(Image image, VkFormat format);
 
 	Image GetImage() const { return m_Image; }
-	VkImageView GetImageView() const { return m_ImageView; }
+	VkImageView GetVkImageView() const { return m_ImageView; }
 	VkFormat GetFormat() const { return m_Format; }
 
 private:

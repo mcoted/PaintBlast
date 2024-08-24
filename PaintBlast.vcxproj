@@ -144,6 +144,7 @@
     <ClInclude Include="Src\Graphics\GraphicsDevice.h" />
     <ClInclude Include="Src\Graphics\Image.h" />
     <ClInclude Include="Src\Graphics\ImageView.h" />
+    <ClInclude Include="Src\Graphics\RenderPass.h" />
     <ClInclude Include="Src\Graphics\SwapChain.h" />
     <ClInclude Include="Src\Main\framework.h" />
     <ClInclude Include="src\Main\PaintBlast.h" />
@@ -154,6 +155,7 @@
     <ClCompile Include="Src\Graphics\GraphicsDevice.cpp" />
     <ClCompile Include="Src\Graphics\Image.cpp" />
     <ClCompile Include="Src\Graphics\ImageView.cpp" />
+    <ClCompile Include="Src\Graphics\RenderPass.cpp" />
     <ClCompile Include="Src\Graphics\SwapChain.cpp" />
     <ClCompile Include="src\Main\PaintBlast.cpp" />
   </ItemGroup>
